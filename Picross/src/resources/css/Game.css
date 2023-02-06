@@ -1,0 +1,14 @@
+.hintDisplay{
+    -fx-border-style: solid;
+    -fx-border-color: #000000;
+    -fx-text-align:center;
+    -fx-background-color: #FFFFFF;
+}
+
+.hintDisplay Text{
+    -fx-font: 25 arial;
+}
+
+.historyArea{
+    -fx-background-color: #FFFFFF;
+}

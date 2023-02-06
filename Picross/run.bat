@@ -20,8 +20,6 @@ SET MODULELIST=javafx.controls,javafx.fxml
 
 ECHO "Starting App"
 
-echo
-
 java --module-path %JAVAFXDIR% --add-modules %MODULELIST% -jar "%BINDIR%/"%JARNAME%
 
 @echo on
