@@ -1,0 +1,23 @@
+fileMenu = File
+helpMenu = Aide
+gameMenu = Jeu
+languageMenu = Langue
+modeMenu = Mode
+
+languageEnglish = Anglais
+languageFrench = Français
+
+fileSave = Save
+fileLoad = Load
+
+modePlay = Jouer
+modeDesign = Créer
+
+gameDimension = Dimension
+gameNewGame = Nouveau Jeu
+gameSolution = Solution
+gameReset = Recommencer
+gameExit = Quitter
+
+helpColour = Couleur
+helpAbout = Propos

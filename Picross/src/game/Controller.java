@@ -5,22 +5,57 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.StackPane;
 
 /**
  * Handles the GUI controller
  * @author Isaac Proulx - 041007853
  */
 public class Controller implements EventHandler<Event> {
-    private Game view;
+    private View view;
+    private Model model;
     
     /**
-     * Parameterized constructor
+     * Default constructor
+     */
+    public Controller() {
+    }
+    
+    /**
+     * Sets the view object
      * @param view A reference to the view (Game) object
      */
-    public Controller(Game view) {
+    public void setView(View view){
         this.view = view;
+    }
+
+    public void setModel(Model model){
+        this.model = model;
+    }
+
+    private void saveGame(){
+
+    }
+
+    private void loadGame(){
+
+    }
+
+    private void setLanguage(String lang){
+
+    }
+
+    private void setGameMode(int mode){
+
+    }
+
+    private void showSolution(){
+
     }
 
     /**
@@ -28,22 +63,81 @@ public class Controller implements EventHandler<Event> {
      * @param event The event object
      * @param item The menu item that triggered the event
      */
-    private void handleMenuItem(ActionEvent event, MenuItem item){
+    private void handleMenuItem(MenuItem item){
+        String id = item.idProperty().get();
+        //view.addHistory("Selected menu item: "+item.getText());
+        switch(id){
+            case "languageEnglish":{
+                view.setLanguage(0);
+                break;
+            }
+            case "languageFrench":{
+                view.setLanguage(1);
+                break;
+            }
+            case "fileSave":{
+                saveGame();
+                break;
+            }
+            case "fileLoad":{
+                loadGame();
+                break;
+            }
+            case "modePlay":{
+                setGameMode(0);
+                break;
+            }
+            case "modeDesign":{
+                setGameMode(1);
+                break;
+            }
+            case "gameDimension":{
+                view.showDimension();
+                break;
+            }
+            case "gameNewGame":{
+                model.newGame();
+                break;
+            }
+            case "gameSolution":{
+                showSolution();
+                break;
+            }
+            case "gameReset":{
+                model.resetGame();
+                break;
+            }
+            case "helpColour":{
+                //view.showColorPicker();
+                break;
+            }
+        }
+    }
 
-        view.addHistory("Selected menu item: "+item.getText());
-        switch(item.getText()){
-            case "Language":{
-                view.addHistory("Not implemented, would give language prompt.\n");
+    private void handleTile(StackPane tile, MouseButton button){
+        int col = (int) tile.getProperties().get("col");
+        int row = (int) tile.getProperties().get("row");
+        view.addHistory("Clicked tile: ("+col+","+row+")\n");
+        model.updateTile(row, col, button == MouseButton.SECONDARY);
+    }
+
+    private void handleButton(Button button){
+        String id = button.idProperty().get();
+        switch(id){
+            case "resetButton":
+                model.resetGame();
                 break;
-            }
-            case "New Game":{
-                view.addHistory("Not implemented, would give new game prompt.\n");
+            case "newGame":
+                model.newGame();
                 break;
-            }
-            case "Test":{
-                view.addHistory("Just a test option\n");
-                break;
-            }
+        }
+    }
+
+    private void handleCheckBox(CheckBox checkBox){
+        String id = checkBox.idProperty().get();
+        if(id=="markBox"){
+            model.toggleMark();
+            return;
         }
     }
 
@@ -52,31 +146,25 @@ public class Controller implements EventHandler<Event> {
      * @param event The event to handle
      */
     @Override
-    public void handle(Event event){
+    public void handle(Event e){
         //System.out.println(event.getEventType());
-        if(event.getSource().getClass() == MenuItem.class) {
-            handleMenuItem((ActionEvent) event, (MenuItem) event.getSource());
+        Object eventSource = e.getSource();
+        Class<? extends Object> sourceClass = eventSource.getClass();
+        if(sourceClass == MenuItem.class) {
+            handleMenuItem((MenuItem) eventSource);
             return;
         }
-        Node target = (Node) event.getSource();
-        String id = target.idProperty().get();
-        EventType<? extends Event> eventType = event.getEventType();
-        //view.addHistory(id);
-        if(eventType == MouseEvent.MOUSE_CLICKED){
-            view.addHistory("Clicked "+id+"\n");
+        if(sourceClass == StackPane.class){
+            //the only clickable StackPanes should be tiles
+            handleTile((StackPane) eventSource, ((MouseEvent) e).getButton());
             return;
         }
-        if(eventType == ActionEvent.ACTION){
-            switch(id){
-                case "resetButton":
-                    view.addHistory("Reset pressed\n");
-                    break;
-                case "markBox":
-                    view.addHistory(view.markSelected()?"Mark set\n":"Mark unset\n");
-                    break;
-                default:
-                    System.out.println(event);
-            }
+        if(sourceClass == CheckBox.class){
+            handleCheckBox((CheckBox) eventSource);
+            return;
+        }
+        if(sourceClass == Button.class){
+            handleButton((Button) eventSource);
             return;
         }
     }

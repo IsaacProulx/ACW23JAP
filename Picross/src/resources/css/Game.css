@@ -12,3 +12,26 @@
 .historyArea{
     -fx-background-color: #FFFFFF;
 }
+
+.tile{
+    -fx-border-style: solid;
+    -fx-border-color: #000000;
+    -fx-text-align:center;
+    -fx-background-color: #FFFFFF;
+}
+
+.tile.filled{
+    -fx-background-color: #000000;
+}
+
+.tile.marked{
+    -fx-background-color: #707070;
+}
+
+.tile.markedWrong{
+    -fx-background-color: red;
+}
+
+.popupPanel{
+    -fx-background-color: rgba(0,0,0,0);
+}
