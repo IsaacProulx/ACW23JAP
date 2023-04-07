@@ -1,14 +1,15 @@
-fileMenu = File
+fileMenu = Fichier
 helpMenu = Aide
 gameMenu = Jeu
 languageMenu = Langue
 modeMenu = Mode
+networkMenu = Réseau
 
 languageEnglish = Anglais
-languageFrench = Français
+languageFrench = Francais
 
-fileSave = Save
-fileLoad = Load
+fileSave = Sauvegarder
+fileLoad = Charger
 
 modePlay = Jouer
 modeDesign = Créer

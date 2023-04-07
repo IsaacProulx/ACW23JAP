@@ -1,7 +1,6 @@
 package game;
 
 import javafx.application.Application;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
@@ -24,8 +23,9 @@ public class Game extends Application{
     public void start(Stage stage) throws Exception {
         Model model = new Model();
         Controller controller = new Controller();
-        View view = new View(controller, model);
+        View view = new View(controller, model, stage);
         this.timer = new ControllableTimer(view);
+        timer.setDaemon(true);
         controller.setView(view);
         controller.setModel(model);
         model.setView(view);
@@ -33,15 +33,17 @@ public class Game extends Application{
         Scene scene = new Scene(view);
         scene.getStylesheets().clear();
         scene.getStylesheets().add(CSS_PATH+"/Game.css");
+        stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
-        //timer.setStatus(ControllableTimer.TERMINATE);
+
         timer.start();
     }
 
     @Override
     public void stop(){
         System.out.println("Stopping...");
+        timer.setStatus(ControllableTimer.STOP);
         timer.setStatus(ControllableTimer.TERMINATE);
     }
 

@@ -21,6 +21,7 @@
 }
 
 .tile.filled{
+    -fx-transition: -fx-background-color 10ms linear;
     -fx-background-color: #000000;
 }
 

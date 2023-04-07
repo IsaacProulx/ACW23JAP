@@ -24,6 +24,7 @@ SET DOCERR=game-javadoc.err
 SET MAINCLASSSRC=src/game/Game.java
 SET MAINCLASSBIN=game.Game
 SET MODULELIST=javafx.controls,javafx.fxml
+REM SET CLASSPATH=%CLASSPATH%;"%SRCDIR%/resources"
 
 @echo off
 
@@ -53,6 +54,8 @@ ECHO "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 ECHO "                                                                     "
 
 :: EXECUTION STEPS  ...................................................
+:: make sure resources are accessable
+robocopy "%SRCDIR%/resources" "%BINDIR%/resources" /s /e
 
 ECHO "1. Compiling ......................"
 javac -Xlint -cp ".;%SRCDIR%;%JAVAFXDIR%/*" %MAINCLASSSRC% -d %BINDIR% > "%BINDIR%\"%BINOUT% 2> "%BINDIR%\"%BINERR%

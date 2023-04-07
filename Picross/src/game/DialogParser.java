@@ -19,21 +19,6 @@ public class DialogParser {
     }
 
     public void parse(String fileName){
-        /*InputStream in = this.getClass().getResourceAsStream(fileName);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        try{
-            String line;
-            while((line=reader.readLine()) != null){
-                String[] parts = line.split("=");
-                String key = parts[0].strip();
-                if(items.keySet().contains(key)) continue;
-                items.put(key, parts[1].strip());
-            }
-        }catch(IOException e){
-            e.printStackTrace();
-        }finally{
-            
-        }*/
         File file = new File(fileName);
         Scanner scanner = null;
         try{

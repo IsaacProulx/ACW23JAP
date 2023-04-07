@@ -1,13 +1,12 @@
 package game;
 
-import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextField;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
@@ -38,18 +37,6 @@ public class Controller implements EventHandler<Event> {
         this.model = model;
     }
 
-    private void saveGame(){
-
-    }
-
-    private void loadGame(){
-
-    }
-
-    private void setLanguage(String lang){
-
-    }
-
     private void setGameMode(int mode){
 
     }
@@ -68,19 +55,20 @@ public class Controller implements EventHandler<Event> {
         //view.addHistory("Selected menu item: "+item.getText());
         switch(id){
             case "languageEnglish":{
-                view.setLanguage(0);
+                model.setLanguage("en");
                 break;
             }
             case "languageFrench":{
-                view.setLanguage(1);
+                model.setLanguage("fr");
                 break;
             }
             case "fileSave":{
-                saveGame();
+                model.saveGame();
                 break;
             }
             case "fileLoad":{
-                loadGame();
+                //view.openFileChooser("loadGame");
+                model.loadGame();
                 break;
             }
             case "modePlay":{
@@ -108,8 +96,11 @@ public class Controller implements EventHandler<Event> {
                 break;
             }
             case "helpColour":{
-                //view.showColorPicker();
+                view.showColorPicker();
                 break;
+            }
+            case "gameExit":{
+                model.exit();
             }
         }
     }
@@ -128,7 +119,23 @@ public class Controller implements EventHandler<Event> {
                 model.resetGame();
                 break;
             case "newGame":
+                view.hideEnd();
                 model.newGame();
+                break;
+            case "errorOK":
+                view.hideError();
+                break;
+            case "colorPickerDone":
+                view.hideColorPicker();
+                break;
+            case "dimensionConfirmButton":
+                view.hideDimension();
+                TextField dimInput = (TextField) button.getUserData();
+                model.setDim(Integer.parseInt(dimInput.getText()));
+                model.newGame();
+                break;
+            case "dimensionCancelButton":
+                view.hideDimension();
                 break;
         }
     }
@@ -138,6 +145,21 @@ public class Controller implements EventHandler<Event> {
         if(id=="markBox"){
             model.toggleMark();
             return;
+        }
+    }
+
+    private void handleColorPicker(ColorPicker cp) {
+        String id = cp.idProperty().get();
+        switch(id){
+            case "colorPickerMark":
+                model.setMarkColor(cp.getValue());
+                break;
+            case "colorPickerWrong":
+                model.setWrongColor(cp.getValue());
+                break;
+            case "colorPickerCorrect":
+                model.setCorrectColor(cp.getValue());
+                break;
         }
     }
 
@@ -165,6 +187,10 @@ public class Controller implements EventHandler<Event> {
         }
         if(sourceClass == Button.class){
             handleButton((Button) eventSource);
+            return;
+        }
+        if(sourceClass == ColorPicker.class){
+            handleColorPicker((ColorPicker) eventSource);
             return;
         }
     }

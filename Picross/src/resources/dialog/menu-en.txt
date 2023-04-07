@@ -3,6 +3,7 @@ helpMenu = Help
 gameMenu = Game
 languageMenu = Language
 modeMenu = Mode
+networkMenu = Network
 
 languageEnglish = English
 languageFrench = French
