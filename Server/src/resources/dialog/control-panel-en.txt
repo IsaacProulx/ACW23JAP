@@ -1,0 +1,4 @@
+time = Time
+points = Points
+reset = Reset
+mark = Mark

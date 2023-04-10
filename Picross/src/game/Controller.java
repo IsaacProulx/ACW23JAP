@@ -101,6 +101,35 @@ public class Controller implements EventHandler<Event> {
             }
             case "gameExit":{
                 model.exit();
+                break;
+            }
+            case "networkHost":{
+                view.showHostSelect();
+                break;
+            }
+            case "networkPort":{
+                view.showPortSelect();
+                break;
+            }
+            case "networkConnect":{
+                model.connect();
+                break;
+            }
+            case "networkDisconnect":{
+                model.disconnect();
+                break;
+            }
+            case "networkUploadGame":{
+                model.uploadGame();
+                break;
+            }
+            case "networkDownloadGame":{
+                model.downloadGame();
+                break;
+            }
+            case "networkConfigure":{
+                view.showNetworkConfigure();
+                break;
             }
         }
     }
@@ -136,6 +165,22 @@ public class Controller implements EventHandler<Event> {
                 break;
             case "dimensionCancelButton":
                 view.hideDimension();
+                break;
+            case "hostConfirmButton":
+                view.hidePopUp();
+                TextField hostInput = (TextField) button.getUserData();
+                model.setHost(hostInput.getText());
+                break;
+            case "hostCancelButton":
+                view.hidePopUp();
+                break;
+            case "portConfirmButton":
+                view.hidePopUp();
+                TextField portInput = (TextField) button.getUserData();
+                model.setPort(portInput.getText());
+                break;
+            case "portCancelButton":
+                view.hidePopUp();
                 break;
         }
     }

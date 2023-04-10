@@ -1,0 +1,4 @@
+time = Temp
+points = Points
+reset = Recommencer
+mark = Marquer

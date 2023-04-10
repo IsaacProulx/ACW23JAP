@@ -24,12 +24,16 @@ public class Game extends Application{
         Model model = new Model();
         Controller controller = new Controller();
         View view = new View(controller, model, stage);
+        ClientThread gameClient = new ClientThread();
+        gameClient.setDaemon(true);
+        gameClient.start();
         this.timer = new ControllableTimer(view);
         timer.setDaemon(true);
         controller.setView(view);
         controller.setModel(model);
         model.setView(view);
         model.setTimer(timer);
+        model.setGameClient(gameClient);
         Scene scene = new Scene(view);
         scene.getStylesheets().clear();
         scene.getStylesheets().add(CSS_PATH+"/Game.css");

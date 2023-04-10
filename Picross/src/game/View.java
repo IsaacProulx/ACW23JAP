@@ -205,13 +205,66 @@ public class View extends GridPane {
 
     public void hidePopUp(){
         this.getChildren().remove(this.popUpPane);
+        this.popUpPane.getChildren().clear();
     }
 
     public void showPopUp(Parent content){
+        StackPane container = new StackPane();
+        container.getStyleClass().add("tile");
+        //prefSize won't work for some reason
+        container.setMinSize(stage.getWidth()/2,stage.getHeight()/2);
+        container.setMaxSize(stage.getWidth()/2,stage.getHeight()/2);
+        container.getChildren().addAll(content);
         popUpPane.getChildren().addAll(
-            content
+            container
         );
         this.add(popUpPane,0,0,3,3);
+    }
+
+    public void showHostSelect(){
+        VBox container = new VBox();
+        
+        TextField hostInput = new TextField();
+
+        Button cancelButton = new Button("Cancel");
+        cancelButton.idProperty().set("hostCancelButton");
+        cancelButton.addEventHandler(MouseEvent.MOUSE_CLICKED, this.controller);
+
+        Button confirmButton = new Button("Confirm");
+        confirmButton.idProperty().set("hostConfirmButton");
+        confirmButton.setUserData(hostInput);
+        confirmButton.addEventHandler(MouseEvent.MOUSE_CLICKED, this.controller);
+
+        container.getChildren().addAll(
+            new Label("Enter Server Host Address"),
+            hostInput,
+            confirmButton,
+            cancelButton
+        );
+        showPopUp(container);
+    }
+
+    public void showPortSelect(){
+        VBox container = new VBox();
+        
+        TextField portInput = new TextField();
+
+        Button cancelButton = new Button("Cancel");
+        cancelButton.idProperty().set("portCancelButton");
+        cancelButton.addEventHandler(MouseEvent.MOUSE_CLICKED, this.controller);
+
+        Button confirmButton = new Button("Confirm");
+        confirmButton.idProperty().set("portConfirmButton");
+        confirmButton.setUserData(portInput);
+        confirmButton.addEventHandler(MouseEvent.MOUSE_CLICKED, this.controller);
+
+        container.getChildren().addAll(
+            new Label("Enter Server Port"),
+            portInput,
+            confirmButton,
+            cancelButton
+        );
+        showPopUp(container);
     }
 
     public void hideDimension(){
@@ -248,6 +301,29 @@ public class View extends GridPane {
             container
         );
         this.add(endPane,0,0,3,3);
+    }
+
+    public void showNetworkConfigure(){
+        VBox container = new VBox();
+        
+        TextField portInput = new TextField();
+
+        Button cancelButton = new Button("Cancel");
+        cancelButton.idProperty().set("networkConfigureCancelButton");
+        cancelButton.addEventHandler(MouseEvent.MOUSE_CLICKED, this.controller);
+
+        Button confirmButton = new Button("Confirm");
+        confirmButton.idProperty().set("networkConfigureConfirmButton");
+        confirmButton.setUserData(portInput);
+        confirmButton.addEventHandler(MouseEvent.MOUSE_CLICKED, this.controller);
+
+        container.getChildren().addAll(
+            new Label("Enter Server Port"),
+            portInput,
+            confirmButton,
+            cancelButton
+        );
+        showPopUp(container);
     }
 
     public void hideColorPicker(){
@@ -365,6 +441,14 @@ public class View extends GridPane {
         MenuItem helpColour = createMenuItem(dp.get("helpColour"),"helpColour",new ImageView(IMAGE_PATH+"/piciconcol.gif"));
         MenuItem helpAbout = createMenuItem(dp.get("helpAbout"),"helpAbout",new ImageView(IMAGE_PATH+"/piciconabt.gif"));
 
+        MenuItem networkPort = createMenuItem(dp.get("networkPort"), "networkPort");
+        MenuItem networkHost = createMenuItem(dp.get("networkHost"), "networkHost");
+        MenuItem networkConnect = createMenuItem(dp.get("networkConnect"), "networkConnect");
+        MenuItem networkDisconnect = createMenuItem(dp.get("networkDisconnect"), "networkDisconnect");
+        MenuItem networkUploadGame = createMenuItem(dp.get("networkUploadGame"), "networkUploadGame");
+        MenuItem networkDownloadGame = createMenuItem(dp.get("networkDownloadGame"), "networkDownloadGame");
+        MenuItem networkConfigure = createMenuItem(dp.get("networkConfigure"), "networkConfigure");
+
         languageMenu.getItems().addAll(
             languageEnglish,
             languageFrench
@@ -393,6 +477,16 @@ public class View extends GridPane {
         helpMenu.getItems().addAll(
             helpColour,
             helpAbout
+        );
+
+        networkMenu.getItems().addAll(
+            networkHost,
+            networkPort,
+            networkConnect,
+            networkDisconnect,
+            networkUploadGame,
+            networkDownloadGame,
+            networkConfigure
         );
 
         menuBar.getMenus().addAll(
@@ -438,6 +532,7 @@ public class View extends GridPane {
         this.stage = stage;
 
         this.endPane = new StackPane();
+        this.popUpPane = new StackPane();
         /*(Button okButton = new Button("OK");
         okButton.idProperty().set("errorOK");
         okButton.addEventHandler(MouseEvent.MOUSE_CLICKED, this.controller);

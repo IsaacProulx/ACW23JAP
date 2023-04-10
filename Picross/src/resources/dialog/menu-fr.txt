@@ -22,3 +22,11 @@ gameExit = Quitter
 
 helpColour = Couleur
 helpAbout = Propos
+
+networkHost = Set Host
+networkPort = Set Port
+networkConnect = Connect To Server
+networkDisconnect = Disconnect from Server
+networkUploadGame = Upload Current Game
+networkDownloadGame = Download Game
+networkConfigure = Configure

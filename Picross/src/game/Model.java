@@ -10,13 +10,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Random;
-import java.util.Scanner;
 
 import javafx.scene.paint.Color;
 
 public class Model {
     private View view;
     private ControllableTimer timer;
+    private ClientThread gameClient;
     private int dim;
     private byte[][] board;
     private boolean mark;
@@ -28,7 +28,9 @@ public class Model {
     private int numErrors;
     private String baseFileDir;
     private String language;
-    private Color col;
+    private String host;
+    private int port;
+    private Color color;
     private Color markColor;
     private Color wrongColor;
     private Color correctColor;
@@ -47,7 +49,7 @@ public class Model {
         mode = 0;
         mark = false;
         board = new byte[dim][dim];
-        col = new Color(1,1,1,1);
+        color = new Color(1,1,1,1);
         this.markColor = new Color(1, 1, 0, 1);
         this.wrongColor = new Color(1, 0, 0, 1);
         this.correctColor = new Color(0, 1, 0, 1);
@@ -55,35 +57,6 @@ public class Model {
         generateSolution();
         generateRowHints();
         generateColHints();
-    }
-
-    public Color getMarkColor(){
-        return this.markColor;
-    }
-
-    public Color getWrongColor(){
-        return this.wrongColor;
-    }
-
-    public Color getCorrectColor(){
-        return this.correctColor;
-    }
-
-    public void exit(){
-        System.out.println("Exit");
-        view.exit();
-        //just in case
-        timer.setStatus(ControllableTimer.STOP);
-        timer.setStatus(ControllableTimer.TERMINATE);
-    }
-
-    public String getLanguage(){
-        return language;
-    }
-
-    public void setLanguage(String language){
-        this.language = language;
-        view.setLanguage(language);
     }
 
     public void setView(View view){
@@ -94,9 +67,19 @@ public class Model {
         this.timer = timer;
     }
 
-    public void setColor(Color col){
-        this.col = col;
-        view.setColor(col);
+    public void setGameClient(ClientThread gameClient){
+        this.gameClient = gameClient;
+        this.gameClient.setModel(this);
+    }
+
+    public void setLanguage(String language){
+        this.language = language;
+        view.setLanguage(language);
+    }
+
+    public void setColor(Color color){
+        this.color = color;
+        view.setColor(color);
         view.hideColorPicker();
     }
 
@@ -133,8 +116,62 @@ public class Model {
         view.hideColorPicker();
     }
 
+    public void setDim(int dim){
+        this.dim = dim;
+    }
+
+    public void setBaseFileDir(String baseFileDir) {
+        this.baseFileDir = baseFileDir;
+    }
+
+    public void setHost(String host){
+        this.host = host;
+        gameClient.setHost(this.host);
+    }
+
+    public void setPort(String portString){
+        this.port = Integer.parseInt(portString);
+        gameClient.setPort(this.port);
+    }
+    
+    public int getDim(){
+        return dim;
+    }
+
     public Color getColor(){
-        return this.col;
+        return this.color;
+    }
+
+    public Color getMarkColor(){
+        return this.markColor;
+    }
+
+    public Color getWrongColor(){
+        return this.wrongColor;
+    }
+
+    public Color getCorrectColor(){
+        return this.correctColor;
+    }
+
+    public String getLanguage(){
+        return language;
+    }
+
+    public void connect(){
+        gameClient.connect();
+    }
+
+    public void disconnect(){
+        gameClient.disconnect();
+    }
+
+    public void exit(){
+        System.out.println("Exit");
+        view.exit();
+        //just in case
+        timer.setStatus(ControllableTimer.STOP);
+        timer.setStatus(ControllableTimer.TERMINATE);
     }
 
     private int getSolutionForTile(int row, int col){
@@ -293,17 +330,7 @@ public class Model {
         view.addHistory("Reset game\n");
     }
 
-    public int getDim(){
-        return dim;
-    }
-
-    public void setDim(int dim){
-        this.dim = dim;
-    }
-
-    public void setBaseFileDir(String baseFileDir) {
-        this.baseFileDir = baseFileDir;
-    }
+    
 
     public void saveConfig(){
 
@@ -355,4 +382,19 @@ public class Model {
         }
     }
 
+    public void uploadGame(){
+        gameClient.sendGame(dim, solution);
+    }
+
+    public void downloadGame(){
+        int[] data = gameClient.downloadGame();
+        System.out.println(data[0]);
+        System.out.println(data[1]);
+        setDim(data[0]);
+        newGame(data[1]);
+    }
+
+    public void log(String message){
+        view.addHistory(message);
+    }
 }

@@ -10,24 +10,35 @@ public class ClientThread extends Thread {
     //private HashMap<Integer, String> responses;
     private byte[] messageClientHeader;
     private OutputStream writer;
-    private boolean running;
     private String host;
+    private Model model;
     private int port;
+    private boolean downloading = false;
+    private byte[] downloadedData;
+    private volatile int state;
+    private final int STATE_IDLE = 0;
+    private final int STATE_CONNECTING = 1;
+    private final int STATE_CONNECTED = 2;
+    private final int STATE_TERMINATE = 3;
     private final byte OP_SEND = (byte) 1;
     private final byte OP_BROADCAST = (byte) 2;
+    private final byte OP_SENDGAME = (byte) 3;
+    private final byte OP_DOWNLOADGAME = (byte) 4;
     private final byte OP_NOP = (byte) 0xFE;
     private final byte OP_EXIT = (byte) 0xFF;
 
     public ClientThread(){
-        this.running = false;
         this.messageClientHeader = null;
     }
 
     public ClientThread(String host, int port){
-        this.running = false;
         this.messageClientHeader = null;
         this.host = host;
         this.port = port;
+    }
+
+    public void setModel(Model model){
+        this.model = model;
     }
 
     public void setHost(String host){
@@ -37,6 +48,46 @@ public class ClientThread extends Thread {
     public void setPort(int port){
         this.port = port;
     }
+
+    private void log(String message){
+        if(this.model==null) return;
+        model.log(message);
+    }
+
+    public void sendGame(int dim, int solution){
+        byte[] data = new byte[5];
+        byte[] solutionBytes = intToBytes(solution);
+        data[0] = (byte) dim;
+        data[1] = solutionBytes[0];
+        data[2] = solutionBytes[1];
+        data[3] = solutionBytes[2];
+        data[4] = solutionBytes[3];
+        sendMessage(packInstruction(OP_SENDGAME, data));
+    }
+
+    public int[] downloadGame(){
+        int[] res = new int[2];
+        downloading = true;
+        sendMessage(packInstruction(OP_DOWNLOADGAME));
+        while(downloading){};
+        byte[] solutionBytes = {downloadedData[1],downloadedData[2],downloadedData[3],downloadedData[4]};
+        log("downloaded: "+downloadedData[0]+" "+downloadedData[1]+","+downloadedData[2]+","+downloadedData[3]+","+downloadedData[4]);
+        res[0] = (int) downloadedData[0];
+        res[1] = bytesToInt(solutionBytes);
+        return res;
+    }
+
+    private int bytesToInt(byte[] bytes){
+		int num = 0;
+		num |= (int) bytes[0]&0xFF;
+		num<<=8;
+		num |= (int) bytes[1]&0xFF;
+		num<<=8;
+		num |= (int) bytes[2]&0xFF;
+		num<<=8;
+		num |= (int) bytes[3]&0xFF;
+		return num;
+	}
 
     private byte[] intToBytes(int num){
         byte[] bytes = {(byte)((num>>24)&0xFF),(byte)((num>>16)&0xFF),(byte)((num>>8)&0xFF),(byte)(num&0xFF)};
@@ -54,8 +105,8 @@ public class ClientThread extends Thread {
         res[i++] = temp[2];
         res[i++] = temp[3];
 
-        for(; i<data.length; i++){
-            res[i] = data[i-1];
+        for(i=0; i<data.length; i++){
+            res[i+5] = data[i];
         }
         return res;
     }
@@ -90,7 +141,7 @@ public class ClientThread extends Thread {
 	}
 
     public void sendMessage(String messageString){
-        if(messageString == null || this.running==false) return;
+        if(messageString == null || this.state!=STATE_CONNECTED) return;
         sendMessage(generateMessage(messageString));
     }
 
@@ -101,7 +152,7 @@ public class ClientThread extends Thread {
         try{
             writer.write(data);
         }catch(IOException e){
-            System.out.println("Failed to send message");
+            log("Failed to send message");
         }
     }
 
@@ -114,31 +165,39 @@ public class ClientThread extends Thread {
         switch(opcode){
             case 0x00:
                 this.messageClientHeader = data;
-                System.out.println("Connected!");
+                log("Connected!");
+                break;
+            case OP_DOWNLOADGAME:
+                downloadedData = data;
+                downloading = false;
+                log("Downloaded");
+                //System.out.println(data[0]);
+                //model.setDim(dim);
+                //model.newGame(bytesToInt(solutionBytes));
                 break;
             case OP_EXIT:
-                this.running = false;
+                this.state = STATE_IDLE;
                 break;
             default:
-                System.out.println("Received invalid instruction");
+                log("Received invalid instruction");
         }
     }
 
-    public void run(){
+    public void listen(){
         try{
             this.socket = new Socket(host,port);
             InputStream input = socket.getInputStream();
             OutputStream output = socket.getOutputStream();
             this.writer = output;
             //this.writer = new PrintWriter(output,true);
-            this.running = true;
+            this.state = STATE_CONNECTED;
             byte opcode;
             int dataLen;
             byte[] bytes;
             int temp;
 
-            System.out.println("Connecting to server...");
-            while(running){
+            log("Connecting to server...");
+            while(state==STATE_CONNECTED){
                 temp = input.read();
                 opcode = (byte) temp;
 
@@ -158,12 +217,31 @@ public class ClientThread extends Thread {
                 input.read(bytes, 0, dataLen);
                 processInstruction(opcode,dataLen,bytes);
             }
-            System.out.println("Press enter to exit...");
             input.close();
             output.close();
+            output.flush();
             socket.close();
         }catch(IOException e){
             e.printStackTrace();
+        }
+    }
+
+    public void connect(){
+        this.state = STATE_CONNECTING;
+    }
+
+    public void disconnect(){
+        sendMessage(packInstruction(OP_EXIT));
+    }
+
+    public void exit(){
+        this.state = STATE_TERMINATE;
+    }
+
+    public void run(){
+        state = STATE_IDLE;
+        while(state!=STATE_TERMINATE){
+            if(state==STATE_CONNECTING) listen();
         }
     }
 }
